@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String                @id @default(uuid())
+  createdAt           DateTime              @default(now())
+  name                String
+  email               String                @unique
+  password            String
+  hasRestaurant       Boolean               @default(false)
+  Restaurant          Restaurant?
+  Favorite_Restaurant Favorite_Restaurant[]
+}
+
+model Restaurant {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  createdAt      DateTime @default(now())
+  logoUrl        String
+  address        String
+  cep            String
+  description    String
+  contact_number String
+  user_id        String   @unique
+
+  user                  User                 @relation(fields: [user_id], references: [id])
+  Products              Products[]
+  Favorite_Restaurant   Favorite_Restaurant? @relation(fields: [favorite_RestaurantId], references: [id])
+  favorite_RestaurantId String?
+}
+
+model Favorite_Restaurant {
+  id            String       @id @default(uuid())
+  user_id       String
+  restaurant_id String
+  Restaurant    Restaurant[]
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model Products {
+  id            String     @id @default(uuid())
+  name          String
+  price         String
+  quantity      String
+  description   String
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
+  restaurant_id String
+}
