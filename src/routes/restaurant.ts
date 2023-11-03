@@ -68,29 +68,22 @@ export async function restaurantRoutes(app: FastifyInstance) {
     return restaurant
   })
 
-  app.get('/restaurant/:id', async (request) => {
-    const restaurantIdSchema = z.object({
+  app.get('/list-restaurant/:id', async (request) => {
+
+    const userIdSchema = z.object({
       id: z.string()
     })
 
-    const restaurantId = restaurantIdSchema.parse(request.params)
+    const userID = userIdSchema.parse(request.params)
 
-    const { id } = restaurantId
+    const { id } = userID
 
-    const restaurant = await prisma.restaurant.findUnique({
-      where: {
-        id
-      },
-      include: {
-        Products: true
-      }
-    })
-
-    return restaurant
-  })
-
-  app.get('/restaurant', async () => {
     const restaurants = await prisma.restaurant.findMany({
+      where:{
+        NOT: {
+          user_id: id
+        }
+      },
       include:{
         Products: true
       }
@@ -163,17 +156,23 @@ export async function restaurantRoutes(app: FastifyInstance) {
 
   app.post('/filter', async (request) => {
     const filterSchema = z.object({
-      nome: z.string().optional()
+      nome: z.string().optional(),
+      id: z.string()
     })
 
     const filterData = filterSchema.parse(request.body)
 
-    const { nome } = filterData
+    const { nome, id } = filterData
 
     const restaurants = prisma.restaurant.findMany({
       where: {
         name: {
           contains: nome
+        },
+        AND: {
+          NOT: {
+            user_id: id
+          }
         }
       }
     })

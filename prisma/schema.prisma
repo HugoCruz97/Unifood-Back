@@ -53,3 +53,10 @@ model Products {
   restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
   restaurant_id String
 }
+
+model Orders {
+  id          String @id @default(uuid())
+  user_name   String
+  products    String
+  total_price String
+}
