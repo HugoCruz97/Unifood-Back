@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -15,6 +15,8 @@ model User {
   password            String
   hasRestaurant       Boolean               @default(false)
   Restaurant          Restaurant?
+  carts Cart?
+  orders     Order[]
   Favorite_Restaurant Favorite_Restaurant[]
 }
 
@@ -54,9 +56,21 @@ model Products {
   restaurant_id String
 }
 
-model Orders {
-  id          String @id @default(uuid())
-  user_name   String
-  products    String
-  total_price String
+model Cart {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  products Json
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  userId    String
+  total     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Json
+  status    String   @default("Pendente")
+  user      User     @relation(fields: [userId], references: [id])
 }
